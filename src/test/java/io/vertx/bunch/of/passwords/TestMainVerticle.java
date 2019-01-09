@@ -1,4 +1,5 @@
-package io.vertx.bunch-of-passwords;
+package io.vertx.bunch.of.passwords;
+
 
 import io.vertx.core.Vertx;
 import io.vertx.junit5.Timeout;
