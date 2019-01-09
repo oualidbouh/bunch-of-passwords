@@ -4,7 +4,7 @@ package io.vertx.bunch.of.passwords;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
-public class MainVerticle extends AbstractVerticle {
+public class KeyPassVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
