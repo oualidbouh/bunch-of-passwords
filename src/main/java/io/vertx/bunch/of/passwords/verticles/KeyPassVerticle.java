@@ -5,52 +5,63 @@ import io.vertx.bunch.of.passwords.config.Config;
 import io.vertx.bunch.of.passwords.domain.Key;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.mongo.MongoClient;
-import io.vertx.ext.web.ParsedHeaderValues;
-import io.vertx.ext.web.Router;
 
 public class KeyPassVerticle extends AbstractVerticle {
 
   Logger logger = LoggerFactory.getLogger(KeyPassVerticle.class);
+  MongoClient mongoClient;
 
   @Override
   public void start(Future<Void> startFuture) {
 
-    MongoClient mongoClient = MongoClient.createShared(vertx, Config.mongoDbConfig());
+    mongoClient = MongoClient.createShared(vertx, Config.mongoDbConfig());
 
-    Router router = Router.router(vertx);
+    vertx.eventBus().consumer("key-pass", message -> {
+      switch (message.body().toString()) {
 
-    router.route(HttpMethod.GET, "/").handler(handler -> {
-      logger.info("/ invoked");
-      HttpServerResponse response = handler.response();
-      response.end("Hello World");
+        case "getKeys":
+
+          mongoClient.find("keys", new JsonObject(), mongoHandler -> {
+            if (mongoHandler.succeeded()) {
+              message.reply(Json.encodePrettily(mongoHandler.result()));
+            } else {
+              message.reply("NO_KEY_FOUND");
+            }
+          });
+
+          break;
+
+        case "postKey":
+
+          Key key = new Key();
+          key.setLogin(message.headers().get("login"));
+          key.setPassword(message.headers().get("password"));
+          key.setLink(message.headers().get("link"));
+          key.setLastEdit(message.headers().get("lastEdit"));
+
+          logger.info("saving key = {}", key);
+
+          mongoClient.save("keys", JsonObject.mapFrom(key), mongoHandler -> {
+            if (mongoHandler.succeeded()) {
+              logger.info("saving key = {}", key);
+              message.reply(Json.encodePrettily(mongoHandler.result()));
+            } else {
+              logger.error("can't add document keypass = {}", key);
+              message.reply("can't add document");
+            }
+          });
+
+          break;
+
+        default:
+          message.reply("message handler not found");
+          break;
+      }
     });
-
-    router.post("/keys").handler(keyHandler -> {
-
-      Key key = new Key();
-      HttpServerRequest request = keyHandler.request();
-      key.setLogin(request.getHeader("login"));
-      key.setPassword(request.getHeader("password"));
-      key.setLink(request.getHeader("link"));
-      System.out.println(request.getHeader("link"));
-
-    });
-
-    vertx.createHttpServer().requestHandler(router::accept).
-      listen(8080, http ->
-      {
-        if (http.succeeded()) {
-          startFuture.complete();
-          System.out.println("HTTP server started on http://localhost:8080");
-        } else {
-          startFuture.fail(http.cause());
-        }
-      });
   }
 }

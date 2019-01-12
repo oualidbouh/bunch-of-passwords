@@ -8,17 +8,10 @@ public class Key {
   private String login;
   private String password;
   private String link;
-  private Date lastEdit;
+  private String lastEdit;
 
   public Key() {
 
-  }
-
-  public Key(String login, String password, String link, Date lastEdit) {
-    this.login = login;
-    this.password = password;
-    this.link = link;
-    this.lastEdit = lastEdit;
   }
 
   public String getLogin() {
@@ -45,11 +38,11 @@ public class Key {
     this.link = link;
   }
 
-  public Date getLastEdit() {
+  public String getLastEdit() {
     return lastEdit;
   }
 
-  public void setLastEdit(Date lastEdit) {
+  public void setLastEdit(String lastEdit) {
     this.lastEdit = lastEdit;
   }
 
