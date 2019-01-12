@@ -1,6 +1,7 @@
 package io.vertx.bunch.of.passwords;
 
 
+import io.vertx.bunch.of.passwords.verticles.KeyPassVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.Timeout;
 import io.vertx.junit5.VertxExtension;

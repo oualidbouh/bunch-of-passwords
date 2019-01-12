@@ -1,4 +1,4 @@
-package io.vertx.bunch.of.passwords;
+package io.vertx.bunch.of.passwords.config;
 
 import io.vertx.core.json.JsonObject;
 

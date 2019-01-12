@@ -1,14 +1,17 @@
-package io.vertx.bunch.of.passwords;
+package io.vertx.bunch.of.passwords.verticles;
 
 
 import io.vertx.bunch.of.passwords.config.Config;
+import io.vertx.bunch.of.passwords.domain.Key;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.web.ParsedHeaderValues;
 import io.vertx.ext.web.Router;
 
 public class KeyPassVerticle extends AbstractVerticle {
@@ -24,20 +27,19 @@ public class KeyPassVerticle extends AbstractVerticle {
 
     router.route(HttpMethod.GET, "/").handler(handler -> {
       logger.info("/ invoked");
-      mongoClient.createCollection("keys", mongoHandler -> {
-        if (mongoHandler.succeeded()) {
-          System.out.println("Good");
-        } else {
-          System.out.println(mongoHandler.cause());
-        }
-      });
       HttpServerResponse response = handler.response();
       response.end("Hello World");
     });
 
-    router.route(HttpMethod.POST, "/authent/face").handler(handler -> {
-      logger.info("/auth/face invoked");
-      logger.info(handler);
+    router.post("/keys").handler(keyHandler -> {
+
+      Key key = new Key();
+      HttpServerRequest request = keyHandler.request();
+      key.setLogin(request.getHeader("login"));
+      key.setPassword(request.getHeader("password"));
+      key.setLink(request.getHeader("link"));
+      System.out.println(request.getHeader("link"));
+
     });
 
     vertx.createHttpServer().requestHandler(router::accept).

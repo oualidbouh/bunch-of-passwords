@@ -4,10 +4,15 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Key {
+
   private String login;
   private String password;
   private String link;
   private Date lastEdit;
+
+  public Key() {
+
+  }
 
   public Key(String login, String password, String link, Date lastEdit) {
     this.login = login;
